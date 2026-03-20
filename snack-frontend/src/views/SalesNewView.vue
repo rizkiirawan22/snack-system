@@ -1,5 +1,5 @@
 <template>
-  <div class="pos-wrapper">
+  <div class="pos-wrapper" :class="{ 'cart-open': cartExpanded }">
     <!-- Kiri: produk -->
     <div class="pos-products">
       <div class="pos-search">
@@ -60,6 +60,17 @@
 
     <!-- Kanan: keranjang -->
     <div class="pos-cart">
+      <!-- Mini bar — hanya tampil di mobile saat cart collapsed -->
+      <div class="cart-mini-bar" @click="cartExpanded = !cartExpanded">
+        <div class="mini-left">
+          <span class="mini-count">{{ totalItems }} item</span>
+          <span class="mini-total">{{ formatRp(total) }}</span>
+        </div>
+        <span class="mini-toggle">{{ cartExpanded ? '↓ Tutup' : '↑ Keranjang' }}</span>
+      </div>
+
+      <!-- Cart body: header + items + summary -->
+      <div class="cart-body">
       <div class="cart-header">
         <h3 class="cart-title">Transaksi Baru</h3>
         <button v-if="cart.length" class="btn btn-ghost btn-sm" @click="cart = []">Kosongkan</button>
@@ -121,6 +132,7 @@
           Kembali ke Daftar
         </RouterLink>
       </div>
+      </div><!-- /cart-body -->
     </div>
   </div>
 
@@ -162,6 +174,7 @@
 <script setup>
 import { ref, computed, onMounted } from 'vue'
 import { useToastStore } from '@/stores/toast'
+import { printStruk } from '@/utils/export'
 import api from '@/api/axios'
 import AppModal from '@/components/AppModal.vue'
 
@@ -188,9 +201,11 @@ let lastKeyTime    = 0
 
 const methods = [{ value: 'cash', label: 'Tunai' }, { value: 'transfer', label: 'Transfer' }, { value: 'qris', label: 'QRIS' }]
 
-const subtotal = computed(() => cart.value.reduce((s, i) => s + i.quantity * i.price, 0))
-const total    = computed(() => Math.max(0, subtotal.value - discount.value))
-const change   = computed(() => paid.value - total.value)
+const cartExpanded = ref(false)
+const subtotal     = computed(() => cart.value.reduce((s, i) => s + i.quantity * i.price, 0))
+const total        = computed(() => Math.max(0, subtotal.value - discount.value))
+const change       = computed(() => paid.value - total.value)
+const totalItems   = computed(() => cart.value.reduce((s, i) => s + i.quantity, 0))
 
 const formatRp       = (v) => 'Rp ' + Number(v || 0).toLocaleString('id-ID')
 const formatDate     = (d) => d ? new Date(d).toLocaleDateString('id-ID') : ''
@@ -291,28 +306,7 @@ async function checkout() {
 }
 
 function printReceipt() {
-  const printContents = document.getElementById('print-area')?.innerHTML
-  if (!printContents) return
-  const win = window.open('', '_blank', 'width=320,height=600')
-  win.document.write(`
-    <html><head><title>Struk - ${lastSale.value?.invoice_no}</title>
-    <style>
-      body { font-family: monospace; font-size: 12px; padding: 8px; max-width: 280px; margin: 0 auto; }
-      .struk-brand { font-size: 16px; font-weight: bold; text-align: center; margin-bottom: 2px; }
-      .struk-tagline { font-size: 11px; text-align: center; color: #666; margin-bottom: 8px; }
-      .struk-inv, .struk-date, .struk-cashier { font-size: 11px; text-align: center; }
-      .struk-divider { border-top: 1px dashed #000; margin: 6px 0; }
-      .struk-item { margin: 4px 0; }
-      .struk-item-name { font-weight: bold; }
-      .struk-item-detail { display: flex; justify-content: space-between; font-size: 11px; }
-      .struk-row { display: flex; justify-content: space-between; margin: 2px 0; }
-      .struk-row.total { font-weight: bold; font-size: 14px; margin: 4px 0; }
-      .struk-thanks { text-align: center; font-weight: bold; margin-top: 8px; }
-    </style></head><body>${printContents}</body></html>
-  `)
-  win.document.close()
-  win.focus()
-  setTimeout(() => { win.print(); win.close() }, 300)
+  if (lastSale.value) printStruk(lastSale.value)
 }
 
 function newTransaction() {
@@ -470,22 +464,75 @@ onMounted(() => { fetchProducts(); fetchCategories() })
 .struk-row.total { font-size: 15px; color: #1a1a1a; font-weight: 700; border-top: 1px solid #e0e0e0; padding-top: 8px; margin-top: 4px; }
 .struk-thanks { text-align: center; margin-top: 16px; font-size: 14px; font-weight: 600; }
 
-/* Responsive tablet */
+/* Mini bar — hanya di mobile */
+.cart-mini-bar { display: none; }
+
+/* Responsive ≤900px */
 @media (max-width: 900px) {
-  .pos-wrapper { grid-template-columns: 1fr; grid-template-rows: auto 1fr; }
+  .pos-wrapper { grid-template-columns: 1fr; margin: -16px; }
+
   .pos-cart {
     position: fixed;
-    bottom: 0;
-    left: 0;
-    right: 0;
+    bottom: 0; left: 0; right: 0;
     height: auto;
-    max-height: 60vh;
     border-left: none;
-    border-top: 2px solid #ebebeb;
+    border-top: 2px solid var(--border);
     z-index: 100;
-    box-shadow: 0 -4px 20px rgba(0,0,0,0.1);
+    box-shadow: 0 -4px 20px rgba(0,0,0,0.12);
+    transition: max-height 0.3s ease;
+    /* Default collapsed: hanya tampil mini bar */
+    max-height: 56px;
+    overflow: hidden;
   }
-  .pos-products { padding-bottom: 65vh; }
+
+  /* Saat cart expanded */
+  .pos-wrapper.cart-open .pos-cart {
+    max-height: 72vh;
+    overflow-y: auto;
+  }
+
+  /* Cart body: tersembunyi saat collapsed */
+  .cart-body { display: none; }
+  .pos-wrapper.cart-open .cart-body { display: block; }
+
+  /* Mini bar tampil di mobile */
+  .cart-mini-bar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 16px;
+    height: 56px;
+    cursor: pointer;
+    background: var(--bg-surface);
+    flex-shrink: 0;
+    user-select: none;
+  }
+  .cart-mini-bar:active { background: var(--bg-surface-2); }
+
+  .mini-left   { display: flex; align-items: center; gap: 12px; }
+  .mini-count  { font-size: 13px; color: var(--text-3); }
+  .mini-total  { font-size: 16px; font-weight: 700; color: var(--text-1); }
+  .mini-toggle {
+    font-size: 13px; font-weight: 600;
+    color: var(--brand);
+    background: color-mix(in srgb, var(--brand) 12%, transparent);
+    padding: 6px 12px; border-radius: 20px;
+  }
+
+  /* Products: padding bawah cukup untuk mini bar saja */
+  .pos-products { padding-bottom: 72px; }
+  /* Saat cart expanded: kasih ruang lebih */
+  .pos-wrapper.cart-open .pos-products { padding-bottom: 75vh; }
+
   .product-grid { grid-template-columns: repeat(auto-fill, minmax(130px, 1fr)); }
+}
+
+/* Responsive ≤480px */
+@media (max-width: 480px) {
+  .pos-products { padding: 12px; padding-bottom: 72px; }
+  .pos-wrapper.cart-open .pos-products { padding-bottom: 75vh; }
+  .product-grid { grid-template-columns: repeat(auto-fill, minmax(110px, 1fr)); gap: 8px; }
+  .product-img  { height: 70px; }
+  .product-name { font-size: 12px; }
 }
 </style>

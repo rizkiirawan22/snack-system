@@ -153,25 +153,48 @@
       <template v-else>
         <div v-if="!mutations.length" class="empty-mutations">Belum ada riwayat mutasi stok.</div>
         <div v-else>
-          <div class="mut-head">
-            <span>Tanggal</span>
-            <span>Tipe</span>
-            <span>Sebelum</span>
-            <span>Perubahan</span>
-            <span>Sesudah</span>
-            <span>Oleh</span>
-            <span>Keterangan</span>
+          <!-- Desktop table -->
+          <div class="mut-table">
+            <div class="mut-head">
+              <span>Tanggal</span>
+              <span>Tipe</span>
+              <span>Sebelum</span>
+              <span>Perubahan</span>
+              <span>Sesudah</span>
+              <span>Oleh</span>
+              <span>Keterangan</span>
+            </div>
+            <div v-for="m in mutations" :key="m.id" class="mut-row">
+              <span class="mut-date">{{ formatDateTime(m.created_at) }}</span>
+              <span><span class="badge" :class="typeBadge(m.type)">{{ typeLabel(m.type) }}</span></span>
+              <span>{{ m.quantity_before }}</span>
+              <span :class="m.quantity_change > 0 ? 'qty-plus' : 'qty-minus'">
+                {{ m.quantity_change > 0 ? '+' : '' }}{{ m.quantity_change }}
+              </span>
+              <span><strong>{{ m.quantity_after }}</strong></span>
+              <span>{{ m.user?.name }}</span>
+              <span class="mut-notes">{{ m.notes }}</span>
+            </div>
           </div>
-          <div v-for="m in mutations" :key="m.id" class="mut-row">
-            <span class="mut-date">{{ formatDateTime(m.created_at) }}</span>
-            <span><span class="badge" :class="typeBadge(m.type)">{{ typeLabel(m.type) }}</span></span>
-            <span>{{ m.quantity_before }}</span>
-            <span :class="m.quantity_change > 0 ? 'qty-plus' : 'qty-minus'">
-              {{ m.quantity_change > 0 ? '+' : '' }}{{ m.quantity_change }}
-            </span>
-            <span><strong>{{ m.quantity_after }}</strong></span>
-            <span>{{ m.user?.name }}</span>
-            <span class="mut-notes">{{ m.notes }}</span>
+          <!-- Mobile cards -->
+          <div class="mut-cards">
+            <div v-for="m in mutations" :key="m.id" class="mut-card">
+              <div class="mut-card-top">
+                <span class="badge" :class="typeBadge(m.type)">{{ typeLabel(m.type) }}</span>
+                <span class="mut-card-date">{{ formatDateTime(m.created_at) }}</span>
+              </div>
+              <div class="mut-card-stocks">
+                <span>{{ m.quantity_before }}</span>
+                <span class="mut-card-arrow">→</span>
+                <span :class="m.quantity_change > 0 ? 'qty-plus' : 'qty-minus'">
+                  {{ m.quantity_change > 0 ? '+' : '' }}{{ m.quantity_change }}
+                </span>
+                <span class="mut-card-arrow">→</span>
+                <strong>{{ m.quantity_after }}</strong>
+              </div>
+              <div class="mut-card-by">Oleh: {{ m.user?.name ?? '-' }}</div>
+              <div v-if="m.notes" class="mut-card-notes">{{ m.notes }}</div>
+            </div>
           </div>
         </div>
       </template>
@@ -397,11 +420,35 @@ onMounted(() => { fetchData(); fetchCategories() })
 .mutations-summary { font-size: 14px; color: #555; margin-bottom: 12px; padding-bottom: 12px; border-bottom: 1px solid #ebebeb; }
 .empty-mutations { text-align: center; padding: 40px; color: #bbb; font-size: 14px; }
 
-.mut-head { display: grid; grid-template-columns: 130px 80px 60px 80px 60px 90px 1fr; gap: 8px; font-size: 11px; color: #888; font-weight: 600; text-transform: uppercase; padding: 8px 0; border-bottom: 1px solid #ebebeb; }
-.mut-row  { display: grid; grid-template-columns: 130px 80px 60px 80px 60px 90px 1fr; gap: 8px; font-size: 13px; padding: 8px 0; border-bottom: 1px solid #f5f5f5; align-items: center; }
+/* Desktop mutation table */
+.mut-table { overflow-x: auto; -webkit-overflow-scrolling: touch; }
+.mut-head { display: grid; grid-template-columns: 130px 80px 60px 80px 60px 90px minmax(100px,1fr); gap: 8px; font-size: 11px; color: #888; font-weight: 600; text-transform: uppercase; padding: 8px 0; border-bottom: 1px solid #ebebeb; min-width: 600px; }
+.mut-row  { display: grid; grid-template-columns: 130px 80px 60px 80px 60px 90px minmax(100px,1fr); gap: 8px; font-size: 13px; padding: 8px 0; border-bottom: 1px solid #f5f5f5; align-items: center; min-width: 600px; }
 .mut-date { font-size: 11px; color: #888; }
-.mut-notes { font-size: 11px; color: #888; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.mut-notes { font-size: 11px; color: #888; word-break: break-word; white-space: normal; }
+
+/* Mobile mutation cards */
+.mut-cards { display: none; flex-direction: column; gap: 10px; }
+.mut-card { background: var(--bg-surface-2); border-radius: 10px; padding: 12px; display: flex; flex-direction: column; gap: 6px; }
+.mut-card-top { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
+.mut-card-date { font-size: 11px; color: #888; }
+.mut-card-stocks { display: flex; align-items: center; gap: 6px; font-size: 13px; }
+.mut-card-arrow { color: #bbb; font-size: 11px; }
+.mut-card-by { font-size: 11px; color: #aaa; }
+.mut-card-notes { font-size: 12px; color: #666; border-top: 1px solid var(--border); padding-top: 6px; word-break: break-word; }
+
+@media (max-width: 600px) {
+  .mut-table { display: none; }
+  .mut-cards  { display: flex; }
+}
 
 .qty-plus  { color: #065f46; font-weight: 700; }
 .qty-minus { color: #cc3333; font-weight: 700; }
+
+@media (max-width: 480px) {
+  .action-btns { flex-direction: column; gap: 4px; }
+  .action-btns .btn { width: 100%; justify-content: center; }
+  .prod-thumb-wrap { gap: 8px; }
+  .prod-thumb { width: 34px; height: 34px; }
+}
 </style>

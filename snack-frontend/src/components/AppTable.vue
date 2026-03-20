@@ -32,7 +32,18 @@ defineProps({
 </script>
 
 <style scoped>
-.table-wrapper { overflow-x: auto; border-radius: 12px; border: 1px solid var(--border); transition: border-color var(--transition); }
+.table-wrapper {
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  border-radius: 12px;
+  border: 1px solid var(--border);
+  transition: border-color var(--transition);
+}
+
+@media (max-width: 768px) {
+  .app-table th { padding: 10px 12px; font-size: 11px; }
+  :deep(td)     { padding: 10px 12px; }
+}
 
 .app-table { width: 100%; border-collapse: collapse; font-size: 14px; background: var(--bg-surface); transition: background var(--transition); }
 

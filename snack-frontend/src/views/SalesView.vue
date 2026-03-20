@@ -66,6 +66,7 @@
         </div>
       </div>
       <template #footer>
+        <button class="btn btn-ghost" @click="printStruk(detailData)">🖨 Cetak Struk</button>
         <button v-if="detailData && !detailData.voided_at && auth.isAdmin" class="btn btn-danger" @click="openVoidModal">
           Batalkan Transaksi
         </button>
@@ -96,6 +97,7 @@ import { ref, reactive, onMounted } from 'vue'
 import api from '@/api/axios'
 import { useAuthStore } from '@/stores/auth'
 import { useToastStore } from '@/stores/toast'
+import { printStruk } from '@/utils/export'
 import AppTable from '@/components/AppTable.vue'
 import AppPagination from '@/components/AppPagination.vue'
 import AppModal from '@/components/AppModal.vue'

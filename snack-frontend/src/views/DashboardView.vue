@@ -106,15 +106,15 @@ onMounted(async () => {
 
 <style scoped>
 .stat-icon { font-size: 22px; margin-bottom: 8px; }
-.card-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 16px; }
+.card-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 16px; flex-wrap: wrap; gap: 8px; }
 .card-title  { font-size: 15px; font-weight: 600; }
-.date-badge  { font-size: 13px; color: #888; background: #f0f0ee; padding: 6px 14px; border-radius: 20px; }
+.date-badge  { font-size: 13px; color: #888; background: #f0f0ee; padding: 6px 14px; border-radius: 20px; white-space: nowrap; }
 
 .recent-list { display: flex; flex-direction: column; gap: 10px; }
-.recent-item { display: flex; align-items: center; justify-content: space-between; padding: 10px 0; border-bottom: 1px solid #f5f5f5; }
+.recent-item { display: flex; align-items: center; justify-content: space-between; padding: 10px 0; border-bottom: 1px solid #f5f5f5; gap: 8px; }
 .recent-item:last-child { border-bottom: none; }
 .recent-inv  { font-size: 14px; font-weight: 500; }
 .recent-by   { font-size: 12px; color: #aaa; margin-top: 2px; }
-.recent-total { font-weight: 600; font-size: 14px; }
+.recent-total { font-weight: 600; font-size: 14px; white-space: nowrap; }
 .empty-state { text-align: center; color: #aaa; font-size: 14px; padding: 20px 0; }
 </style>

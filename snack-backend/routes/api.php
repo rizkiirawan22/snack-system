@@ -60,12 +60,13 @@ Route::middleware('auth:sanctum')->group(function () {
 
     // Reports (admin only)
     Route::middleware('role:admin')->prefix('reports')->group(function () {
-        Route::get('/sales-summary',   [ReportController::class, 'salesSummary']);
-        Route::get('/top-products',    [ReportController::class, 'topProducts']);
-        Route::get('/stock',           [ReportController::class, 'stockReport']);
-        Route::get('/profit',          [ReportController::class, 'profitReport']);
-        Route::get('/cashier-summary', [ReportController::class, 'cashierSummary']);
-        Route::get('/supplier',        [ReportController::class, 'supplierReport']);
+        Route::get('/sales-summary',    [ReportController::class, 'salesSummary']);
+        Route::get('/top-products',     [ReportController::class, 'topProducts']);
+        Route::get('/stock',            [ReportController::class, 'stockReport']);
+        Route::get('/profit',           [ReportController::class, 'profitReport']);
+        Route::get('/cashier-summary',  [ReportController::class, 'cashierSummary']);
+        Route::get('/supplier',         [ReportController::class, 'supplierReport']);
+        Route::get('/sales-by-category',[ReportController::class, 'salesByCategory']);
     });
 
     // User management (admin only)

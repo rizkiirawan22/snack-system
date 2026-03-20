@@ -66,14 +66,15 @@ class SaleController extends Controller
             ]);
 
             foreach ($data['items'] as $item) {
-                $sale->items()->create([
-                    'product_id' => $item['product_id'],
-                    'quantity'   => $item['quantity'],
-                    'price'      => $item['price'],
-                    'subtotal'   => $item['quantity'] * $item['price'],
-                ]);
-
                 $stock = Stock::where('product_id', $item['product_id'])->lockForUpdate()->first();
+
+                $sale->items()->create([
+                    'product_id'     => $item['product_id'],
+                    'quantity'       => $item['quantity'],
+                    'price'          => $item['price'],
+                    'purchase_price' => $stock->avg_purchase_price ?? 0,
+                    'subtotal'       => $item['quantity'] * $item['price'],
+                ]);
                 $before = $stock->quantity;
                 $stock->decrement('quantity', $item['quantity']);
 

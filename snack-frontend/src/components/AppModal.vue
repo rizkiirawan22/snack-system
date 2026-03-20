@@ -40,8 +40,11 @@ defineEmits(['update:modelValue'])
   border-radius: 14px;
   border: 1px solid var(--border);
   width: 100%;
+  max-height: 90vh;
+  display: flex;
+  flex-direction: column;
   box-shadow: var(--shadow-modal);
-  overflow: hidden;
+  overflow: clip;
   transition: background var(--transition), border-color var(--transition);
 }
 
@@ -64,10 +67,26 @@ defineEmits(['update:modelValue'])
 
 .modal-close:hover { background: var(--bg-surface-2); color: var(--text-1); }
 
-.modal-body { padding: 20px 24px; }
-.modal-footer { padding: 0 24px 20px; display: flex; justify-content: flex-end; gap: 8px; }
+.modal-header { flex-shrink: 0; }
+.modal-body { padding: 20px 24px; overflow-y: auto; flex: 1; min-height: 0; }
+.modal-footer { padding: 0 24px 20px; display: flex; justify-content: flex-end; gap: 8px; flex-shrink: 0; }
 
 .modal-enter-active, .modal-leave-active { transition: all 0.2s ease; }
 .modal-enter-from, .modal-leave-to { opacity: 0; }
 .modal-enter-from .modal-box, .modal-leave-to .modal-box { transform: scale(0.95); }
+
+@media (max-width: 600px) {
+  .modal-overlay {
+    align-items: flex-end;
+    padding: 0;
+  }
+  .modal-box {
+    border-radius: 20px 20px 0 0;
+    max-height: 92vh;
+    overflow-y: auto;
+  }
+  .modal-enter-from .modal-box, .modal-leave-to .modal-box {
+    transform: translateY(100%);
+  }
+}
 </style>

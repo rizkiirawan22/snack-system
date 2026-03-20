@@ -1,15 +1,21 @@
 <template>
   <div class="app-wrapper">
+    <!-- Mobile backdrop -->
+    <Transition name="fade">
+      <div v-if="mobileMenuOpen" class="mobile-backdrop" @click="mobileMenuOpen = false" />
+    </Transition>
+
     <!-- Sidebar -->
-    <aside class="sidebar" :class="{ collapsed: sidebarCollapsed }">
+    <aside class="sidebar" :class="{ collapsed: sidebarCollapsed, 'mobile-open': mobileMenuOpen }">
       <div class="sidebar-header">
         <div class="logo">
           <span class="logo-icon">🍿</span>
           <span class="logo-text">SnackKilo</span>
         </div>
-        <button class="collapse-btn" @click="sidebarCollapsed = !sidebarCollapsed">
+        <button class="collapse-btn desktop-only" @click="sidebarCollapsed = !sidebarCollapsed">
           <span>{{ sidebarCollapsed ? '›' : '‹' }}</span>
         </button>
+        <button class="collapse-btn mobile-only" @click="mobileMenuOpen = false">✕</button>
       </div>
 
       <nav class="sidebar-nav">
@@ -62,7 +68,7 @@
             <div class="user-role">{{ auth.user?.role }}</div>
           </div>
         </div>
-        <button class="theme-btn" :title="theme.isDark ? 'Beralih ke Light Mode' : 'Beralih ke Dark Mode'" @click="theme.toggle()">
+        <button class="theme-btn" :title="theme.isDark ? 'Light Mode' : 'Dark Mode'" @click="theme.toggle()">
           {{ theme.isDark ? '☀' : '☾' }}
         </button>
         <button class="logout-btn" title="Keluar" @click="handleLogout">⎋</button>
@@ -71,17 +77,23 @@
 
     <!-- Main content -->
     <main class="main-content">
+      <!-- Mobile top bar -->
+      <div class="mobile-topbar">
+        <button class="hamburger-btn" @click="mobileMenuOpen = true">☰</button>
+        <span class="mobile-brand">🍿 SnackKilo</span>
+        <button class="theme-btn-mobile" @click="theme.toggle()">{{ theme.isDark ? '☀' : '☾' }}</button>
+      </div>
+
       <RouterView />
     </main>
 
-    <!-- Toast container -->
     <ToastContainer />
   </div>
 </template>
 
 <script setup>
-import { ref } from 'vue'
-import { useRouter } from 'vue-router'
+import { ref, watch } from 'vue'
+import { useRouter, useRoute } from 'vue-router'
 import { useAuthStore } from '@/stores/auth'
 import { useThemeStore } from '@/stores/theme'
 import ToastContainer from '@/components/ToastContainer.vue'
@@ -89,7 +101,12 @@ import ToastContainer from '@/components/ToastContainer.vue'
 const auth  = useAuthStore()
 const theme = useThemeStore()
 const router = useRouter()
+const route  = useRoute()
 const sidebarCollapsed = ref(false)
+const mobileMenuOpen   = ref(false)
+
+// Tutup sidebar mobile saat navigasi
+watch(() => route.path, () => { mobileMenuOpen.value = false })
 
 async function handleLogout() {
   await auth.logout()
@@ -105,6 +122,7 @@ async function handleLogout() {
   transition: background var(--transition);
 }
 
+/* ===== SIDEBAR ===== */
 .sidebar {
   width: 240px;
   min-height: 100vh;
@@ -117,6 +135,7 @@ async function handleLogout() {
   top: 0;
   height: 100vh;
   overflow: hidden;
+  z-index: 200;
 }
 
 .sidebar.collapsed { width: 64px; }
@@ -144,7 +163,7 @@ async function handleLogout() {
   background: none;
   border: 1px solid var(--sidebar-border);
   color: var(--sidebar-text);
-  width: 24px; height: 24px;
+  width: 28px; height: 28px;
   border-radius: 6px;
   cursor: pointer;
   display: flex; align-items: center; justify-content: center;
@@ -152,6 +171,8 @@ async function handleLogout() {
   flex-shrink: 0;
 }
 .collapse-btn:hover { background: var(--sidebar-hover-bg); color: #fff; }
+.mobile-only  { display: none; }
+.desktop-only { display: flex; }
 
 .sidebar-nav {
   flex: 1;
@@ -223,11 +244,93 @@ async function handleLogout() {
 .theme-btn:hover  { background: var(--sidebar-hover-bg); color: var(--brand); }
 .logout-btn:hover { background: #ff4444; border-color: #ff4444; color: #fff; }
 
+/* ===== MAIN CONTENT ===== */
 .main-content {
   flex: 1;
   padding: 32px;
   overflow-y: auto;
   min-height: 100vh;
+  min-width: 0;
   transition: background var(--transition);
+}
+
+/* ===== MOBILE TOPBAR ===== */
+.mobile-topbar { display: none; }
+
+.hamburger-btn {
+  background: none;
+  border: 1px solid var(--border-input);
+  color: var(--text-2);
+  width: 38px; height: 38px;
+  border-radius: 9px;
+  cursor: pointer;
+  font-size: 18px;
+  display: flex; align-items: center; justify-content: center;
+  flex-shrink: 0;
+}
+.hamburger-btn:hover { background: var(--bg-surface-2); }
+
+.mobile-brand {
+  flex: 1;
+  font-weight: 700;
+  font-size: 16px;
+  color: var(--text-1);
+}
+
+.theme-btn-mobile {
+  background: none;
+  border: 1px solid var(--border-input);
+  color: var(--text-2);
+  width: 38px; height: 38px;
+  border-radius: 9px;
+  cursor: pointer;
+  font-size: 15px;
+  flex-shrink: 0;
+}
+
+/* ===== MOBILE BACKDROP ===== */
+.mobile-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.5);
+  z-index: 199;
+}
+
+.fade-enter-active, .fade-leave-active { transition: opacity 0.25s; }
+.fade-enter-from, .fade-leave-to { opacity: 0; }
+
+/* ===== RESPONSIVE ===== */
+@media (max-width: 768px) {
+  /* Sidebar jadi drawer overlay */
+  .sidebar {
+    position: fixed;
+    left: -260px;
+    height: 100vh;
+    transition: left 0.25s ease;
+  }
+  .sidebar.mobile-open { left: 0; }
+
+  /* Sembunyikan tombol collapse desktop, tampilkan tombol tutup mobile */
+  .desktop-only { display: none !important; }
+  .mobile-only  { display: flex !important; }
+
+  /* Topbar mobile tampil */
+  .mobile-topbar {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 10px 16px;
+    background: var(--bg-surface);
+    border-bottom: 1px solid var(--border);
+    margin: -16px -16px 16px;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+  }
+
+  .main-content {
+    padding: 16px;
+    min-height: 100vh;
+  }
 }
 </style>

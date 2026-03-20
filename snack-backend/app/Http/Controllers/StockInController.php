@@ -46,11 +46,21 @@ class StockInController extends Controller
 
                 $stock = Stock::where('product_id', $item['product_id'])->lockForUpdate()->first();
                 if ($stock) {
-                    $before = $stock->quantity;
-                    $stock->increment('quantity', $item['quantity']);
+                    $before   = $stock->quantity;
+                    $newAvg   = $before > 0
+                        ? ($before * $stock->avg_purchase_price + $item['quantity'] * $item['purchase_price']) / ($before + $item['quantity'])
+                        : $item['purchase_price'];
+                    $stock->update([
+                        'quantity'            => $before + $item['quantity'],
+                        'avg_purchase_price'  => round($newAvg, 2),
+                    ]);
                 } else {
                     $before = 0;
-                    $stock = Stock::create(['product_id' => $item['product_id'], 'quantity' => $item['quantity']]);
+                    $stock  = Stock::create([
+                        'product_id'          => $item['product_id'],
+                        'quantity'            => $item['quantity'],
+                        'avg_purchase_price'  => $item['purchase_price'],
+                    ]);
                 }
 
                 StockMutation::create([
