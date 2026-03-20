@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Support\Facades\Storage;
 
 class Product extends Model
 {
@@ -19,8 +20,11 @@ class Product extends Model
         'selling_price',
         'min_stock',
         'description',
+        'image',
         'is_active',
     ];
+
+    protected $appends = ['image_url'];
 
     protected $casts = [
         'purchase_price' => 'decimal:2',
@@ -46,6 +50,11 @@ class Product extends Model
     public function saleItems()
     {
         return $this->hasMany(SaleItem::class);
+    }
+
+    public function getImageUrlAttribute(): ?string
+    {
+        return $this->image ? url(Storage::url($this->image)) : null;
     }
 
     public function isLowStock(): bool

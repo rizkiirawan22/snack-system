@@ -28,8 +28,14 @@
     <AppTable :columns="columns" :data="products" :loading="loading">
       <template #default="{ row }">
         <td>
-          <div class="prod-name">{{ row.name }}</div>
-          <div class="prod-code">{{ row.code }}</div>
+          <div class="prod-thumb-wrap">
+            <img v-if="row.image_url" :src="row.image_url" class="prod-thumb" :alt="row.name" />
+            <div v-else class="prod-thumb prod-no-img">No Image</div>
+            <div>
+              <div class="prod-name">{{ row.name }}</div>
+              <div class="prod-code">{{ row.code }}</div>
+            </div>
+          </div>
         </td>
         <td><span class="badge badge-blue">{{ row.category?.name }}</span></td>
         <td>{{ row.weight }}gr</td>
@@ -100,6 +106,22 @@
       <div class="form-group">
         <label class="form-label">Deskripsi</label>
         <textarea v-model="form.description" class="form-control" rows="2" />
+      </div>
+      <div class="form-group">
+        <label class="form-label">Gambar Produk</label>
+        <div class="img-upload-area" @click="$refs.imgInput.click()" @dragover.prevent @drop.prevent="onDrop">
+          <img v-if="imagePreview" :src="imagePreview" class="img-preview" alt="preview" />
+          <div v-else-if="form.existingImage" class="img-existing">
+            <img :src="form.existingImage" class="img-preview" alt="existing" />
+          </div>
+          <div v-else class="img-placeholder">
+            <span class="img-icon">&#128247;</span>
+            <span>Klik atau seret gambar di sini</span>
+            <span class="img-hint">JPG, PNG, WebP — maks 2MB</span>
+          </div>
+          <input ref="imgInput" type="file" accept="image/*" style="display:none" @change="onImagePick" />
+        </div>
+        <button v-if="imagePreview || form.existingImage" class="btn btn-ghost btn-sm" style="margin-top:6px" @click.stop="clearImage">Hapus Gambar</button>
       </div>
       <div class="form-group" style="display:flex;align-items:center;gap:10px">
         <input v-model="form.is_active" type="checkbox" id="is_active" />
@@ -181,6 +203,9 @@ const showConfirm = ref(false)
 const editId      = ref(null)
 const deleteTarget = ref(null)
 
+const imagePreview = ref(null)
+const imgInput     = ref(null)   // template ref ke <input type="file">
+
 const showMutations   = ref(false)
 const loadingMutations = ref(false)
 const mutationProduct  = ref(null)
@@ -188,7 +213,7 @@ const mutations        = ref([])
 
 const filters = reactive({ search: '', category_id: '', is_active: '' })
 
-const defaultForm = () => ({ code: '', category_id: '', name: '', weight: 250, min_stock: 10, purchase_price: 0, selling_price: 0, description: '', is_active: true, unit: 'gram' })
+const defaultForm = () => ({ code: '', category_id: '', name: '', weight: 250, min_stock: 10, purchase_price: 0, selling_price: 0, description: '', is_active: true, unit: 'gram', existingImage: null })
 const form = reactive(defaultForm())
 
 const columns = [
@@ -248,15 +273,43 @@ async function fetchCategories() {
   categories.value = data.data ?? data
 }
 
+function resetImage() {
+  imagePreview.value = null
+  if (imgInput.value) imgInput.value.value = ''  // clear file input DOM
+}
+
+function onImagePick(e) {
+  const file = e.target.files[0]
+  if (!file) return
+  imagePreview.value = URL.createObjectURL(file)
+}
+
+function onDrop(e) {
+  const file = e.dataTransfer.files[0]
+  if (!file || !file.type.startsWith('image/')) return
+  // Set file ke input DOM secara manual via DataTransfer
+  const dt = new DataTransfer()
+  dt.items.add(file)
+  imgInput.value.files = dt.files
+  imagePreview.value = URL.createObjectURL(file)
+}
+
+function clearImage() {
+  resetImage()
+  form.existingImage = null
+}
+
 function openCreate() {
   editId.value = null
   Object.assign(form, defaultForm())
+  resetImage()
   showModal.value = true
 }
 
 function openEdit(row) {
   editId.value = row.id
-  Object.assign(form, { ...row, category_id: row.category_id })
+  Object.assign(form, { ...row, category_id: row.category_id, existingImage: row.image_url })
+  resetImage()
   showModal.value = true
 }
 
@@ -268,8 +321,20 @@ function openDelete(row) {
 async function saveProduct() {
   saving.value = true
   try {
-    if (editId.value) await api.put(`/products/${editId.value}`, form)
-    else              await api.post('/products', form)
+    const fd = new FormData()
+    const fields = ['code','category_id','name','unit','weight','min_stock','purchase_price','selling_price','description']
+    fields.forEach(k => fd.append(k, form[k] ?? ''))
+    fd.append('is_active', form.is_active ? '1' : '0')
+    // Baca file langsung dari DOM — hindari Vue reactive proxy
+    const rawFile = imgInput.value?.files?.[0]
+    if (rawFile) fd.append('image', rawFile)
+
+    if (editId.value) {
+      fd.append('_method', 'PUT')
+      await api.post(`/products/${editId.value}`, fd)
+    } else {
+      await api.post('/products', fd)
+    }
     toast.success(editId.value ? 'Produk berhasil diperbarui.' : 'Produk berhasil ditambahkan.')
     showModal.value = false
     fetchData()
@@ -298,9 +363,36 @@ onMounted(() => { fetchData(); fetchCategories() })
 </script>
 
 <style scoped>
+.prod-thumb-wrap { display: flex; align-items: center; gap: 10px; }
+.prod-thumb { width: 40px; height: 40px; object-fit: cover; border-radius: 8px; flex-shrink: 0; border: 1px solid var(--border); }
+.prod-no-img {
+  display: flex; align-items: center; justify-content: center;
+  background: var(--bg-surface-3); color: var(--text-4);
+  font-size: 9px; font-weight: 600; text-align: center; letter-spacing: 0.02em;
+  border-radius: 8px; flex-shrink: 0;
+}
 .prod-name { font-weight: 500; font-size: 14px; }
 .prod-code { font-size: 12px; color: #aaa; margin-top: 2px; font-family: monospace; }
 .action-btns { display: flex; gap: 6px; flex-wrap: wrap; }
+
+/* Image upload */
+.img-upload-area {
+  border: 2px dashed var(--border-input);
+  border-radius: 10px;
+  padding: 16px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 100px;
+  transition: border-color 0.15s;
+}
+.img-upload-area:hover { border-color: var(--brand); }
+.img-preview { width: 120px; height: 120px; object-fit: cover; border-radius: 8px; }
+.img-existing { display: flex; }
+.img-placeholder { display: flex; flex-direction: column; align-items: center; gap: 4px; color: var(--text-3); }
+.img-icon { font-size: 28px; }
+.img-hint { font-size: 11px; color: var(--text-4); }
 
 .mutations-summary { font-size: 14px; color: #555; margin-bottom: 12px; padding-bottom: 12px; border-bottom: 1px solid #ebebeb; }
 .empty-mutations { text-align: center; padding: 40px; color: #bbb; font-size: 14px; }
@@ -310,6 +402,6 @@ onMounted(() => { fetchData(); fetchCategories() })
 .mut-date { font-size: 11px; color: #888; }
 .mut-notes { font-size: 11px; color: #888; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 
-.qty-plus  { color: #4a7a00; font-weight: 700; }
+.qty-plus  { color: #065f46; font-weight: 700; }
 .qty-minus { color: #cc3333; font-weight: 700; }
 </style>

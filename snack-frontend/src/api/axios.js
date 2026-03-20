@@ -8,6 +8,11 @@ const api = axios.create({
 api.interceptors.request.use((config) => {
   const token = localStorage.getItem('token')
   if (token) config.headers.Authorization = `Bearer ${token}`
+  // Saat kirim FormData, hapus Content-Type agar browser set multipart/form-data+boundary otomatis.
+  // Axios 1.x akan JSON.stringify FormData jika Content-Type: application/json masih aktif.
+  if (config.data instanceof FormData) {
+    config.headers.delete('Content-Type')
+  }
   return config
 })
 

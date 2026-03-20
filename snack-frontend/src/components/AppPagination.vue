@@ -39,8 +39,8 @@ const pages = computed(() => {
   color: #555; transition: all 0.15s;
 }
 
-.page-btn:hover:not(:disabled) { border-color: #b8f000; color: #1a1a1a; }
-.page-btn.active { background: #1a1a1a; border-color: #1a1a1a; color: #b8f000; font-weight: 600; }
+.page-btn:hover:not(:disabled) { border-color: #0d9488; color: #0d9488; }
+.page-btn.active { background: #0d9488; border-color: #0d9488; color: #fff; font-weight: 600; }
 .page-btn:disabled { opacity: 0.4; cursor: not-allowed; }
 .page-dots { padding: 0 4px; color: #aaa; font-size: 13px; }
 .page-info { margin-left: 8px; font-size: 12px; color: #aaa; }

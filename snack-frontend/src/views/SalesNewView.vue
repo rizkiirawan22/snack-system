@@ -43,6 +43,10 @@
           :class="{ 'out-of-stock': !p.stock || p.stock.quantity === 0 }"
           @click="addToCart(p)"
         >
+          <div class="product-img-wrap">
+            <img v-if="p.image_url" :src="p.image_url" class="product-img" :alt="p.name" />
+            <div v-else class="product-img product-no-img">No Image</div>
+          </div>
           <div class="product-cat">{{ p.category?.name }}</div>
           <div class="product-name">{{ p.name }}</div>
           <div class="product-weight">{{ p.weight }}gr</div>
@@ -352,7 +356,7 @@ onMounted(() => { fetchProducts(); fetchCategories() })
   color: #555;
   transition: all 0.15s;
 }
-.barcode-toggle.active { background: #1a1a1a; color: #b8f000; border-color: #1a1a1a; }
+.barcode-toggle.active { background: #1a1a1a; color: #0d9488; border-color: #1a1a1a; }
 
 .barcode-hint {
   font-size: 11px;
@@ -383,6 +387,13 @@ onMounted(() => { fetchProducts(); fetchCategories() })
 .product-card:hover:not(.out-of-stock) { border-color: var(--brand); transform: translateY(-1px); box-shadow: 0 4px 12px rgba(0,0,0,0.12); }
 .product-card.out-of-stock { opacity: 0.5; cursor: not-allowed; }
 
+.product-img-wrap { margin-bottom: 8px; }
+.product-img { width: 100%; height: 90px; object-fit: cover; border-radius: 8px; border: 1px solid var(--border); display: block; }
+.product-no-img {
+  display: flex; align-items: center; justify-content: center;
+  background: var(--bg-surface-3); color: var(--text-4);
+  font-size: 10px; font-weight: 600; letter-spacing: 0.03em;
+}
 .product-cat    { font-size: 10px; text-transform: uppercase; letter-spacing: 0.06em; color: var(--text-4); margin-bottom: 4px; }
 .product-name   { font-size: 13px; font-weight: 600; color: var(--text-1); margin-bottom: 4px; line-height: 1.3; }
 .product-weight { font-size: 11px; color: var(--text-3); margin-bottom: 10px; }
@@ -390,7 +401,7 @@ onMounted(() => { fetchProducts(); fetchCategories() })
 .product-price  { font-size: 13px; font-weight: 700; color: var(--text-1); }
 .product-stock  { font-size: 10px; padding: 2px 6px; border-radius: 10px; font-weight: 600; }
 
-.stock-ok  { background: #e8ffc0; color: #4a7a00; }
+.stock-ok  { background: #d1fae5; color: #065f46; }
 .stock-low { background: #fff3cc; color: #886600; }
 .stock-out { background: #ffe0e0; color: #aa2200; }
 

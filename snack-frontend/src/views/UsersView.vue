@@ -168,7 +168,7 @@ onMounted(fetchData)
 
 <style scoped>
 .user-row    { display: flex; align-items: center; gap: 10px; }
-.user-avatar { width: 34px; height: 34px; background: #b8f000; color: #1a1a1a; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 13px; flex-shrink: 0; }
+.user-avatar { width: 34px; height: 34px; background: #0d9488; color: #1a1a1a; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 13px; flex-shrink: 0; }
 .user-name   { font-size: 14px; font-weight: 500; }
 .user-email  { font-size: 12px; color: #aaa; }
 .action-btns { display: flex; gap: 6px; }

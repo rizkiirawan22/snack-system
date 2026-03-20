@@ -47,9 +47,9 @@ const icons = { success: '✓', error: '✕', info: 'ℹ' }
   max-width: 380px;
 }
 
-.toast.success { background: #1a1a1a; color: #b8f000; border: 1px solid #b8f000; }
-.toast.error   { background: #1a1a1a; color: #ff6b6b; border: 1px solid #ff6b6b; }
-.toast.info    { background: #1a1a1a; color: #6bc5ff; border: 1px solid #6bc5ff; }
+.toast.success { background: #0f172a; color: #5eead4; border: 1px solid #0d9488; }
+.toast.error   { background: #0f172a; color: #fca5a5; border: 1px solid #f87171; }
+.toast.info    { background: #0f172a; color: #93c5fd; border: 1px solid #60a5fa; }
 .toast-icon    { font-weight: 700; font-size: 13px; }
 
 .toast-enter-active, .toast-leave-active { transition: all 0.25s ease; }

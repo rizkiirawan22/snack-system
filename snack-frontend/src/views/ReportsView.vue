@@ -359,7 +359,7 @@ function exportCurrentTab() {
 
 /* Stats */
 .grid-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
-.stat-card-green { border-left: 3px solid #b8f000; }
+.stat-card-green { border-left: 3px solid #0d9488; }
 
 /* Payment methods */
 .method-row   { display: flex; justify-content: space-between; align-items: center; padding: 10px 0; border-bottom: 1px solid #f5f5f5; }
@@ -382,7 +382,7 @@ function exportCurrentTab() {
 .daily-head  { display: grid; grid-template-columns: 120px 120px 160px 1fr; gap: 8px; font-size: 11px; color: #888; font-weight: 600; text-transform: uppercase; padding: 8px 0; border-bottom: 1px solid #ebebeb; }
 .daily-row   { display: grid; grid-template-columns: 120px 120px 160px 1fr; gap: 8px; padding: 10px 0; border-bottom: 1px solid #f5f5f5; align-items: center; }
 .bar-wrap { background: #f5f5f0; border-radius: 4px; height: 8px; overflow: hidden; }
-.bar      { background: #b8f000; height: 100%; border-radius: 4px; transition: width 0.5s ease; }
+.bar      { background: #0d9488; height: 100%; border-radius: 4px; transition: width 0.5s ease; }
 
 /* Stock */
 .stock-table-head { display: grid; grid-template-columns: 90px 1fr 100px 70px 70px 80px 80px; gap: 8px; font-size: 11px; color: #888; font-weight: 600; text-transform: uppercase; padding: 8px 0; border-bottom: 1px solid #ebebeb; }
@@ -395,10 +395,10 @@ function exportCurrentTab() {
 .profit-row  { display: grid; grid-template-columns: 1fr 90px 60px 130px 130px 130px 80px; gap: 8px; font-size: 13px; padding: 10px 0; border-bottom: 1px solid #f5f5f5; align-items: center; }
 .profit-name { font-size: 13px; font-weight: 500; }
 .profit-code { font-size: 11px; color: #aaa; font-family: monospace; }
-.profit-pos  { color: #4a7a00; font-weight: 600; }
+.profit-pos  { color: #065f46; font-weight: 600; }
 .profit-neg  { color: #cc3333; font-weight: 600; }
 .margin-badge { font-size: 11px; font-weight: 700; padding: 2px 6px; border-radius: 6px; }
-.margin-high { background: #e8ffc0; color: #4a7a00; }
+.margin-high { background: #d1fae5; color: #065f46; }
 .margin-mid  { background: #fff3cc; color: #886600; }
 .margin-low  { background: #ffe0e0; color: #aa2200; }
 
@@ -412,7 +412,7 @@ function exportCurrentTab() {
 }
 .cashier-avatar {
   width: 40px; height: 40px;
-  background: #b8f000; color: #1a1a1a;
+  background: #0d9488; color: #1a1a1a;
   border-radius: 50%;
   display: flex; align-items: center; justify-content: center;
   font-weight: 700; font-size: 16px;

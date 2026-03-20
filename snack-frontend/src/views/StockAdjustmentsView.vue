@@ -193,7 +193,7 @@ onMounted(() => { fetchData(); fetchProducts() })
 .code-mono { font-family: monospace; font-size: 12px; font-weight: 600; }
 .notes-cell { max-width: 160px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: 12px; color: #888; }
 
-.qty-plus  { color: #4a7a00; font-weight: 700; }
+.qty-plus  { color: #065f46; font-weight: 700; }
 .qty-minus { color: #cc3333; font-weight: 700; }
 .qty-zero  { color: #888; }
 

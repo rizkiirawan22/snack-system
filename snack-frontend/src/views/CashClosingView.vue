@@ -249,7 +249,7 @@ onMounted(() => fetchData())
 .closing-summary-title { font-size: 13px; font-weight: 600; margin-bottom: 10px; color: #555; }
 .cs-row    { display: flex; justify-content: space-between; font-size: 14px; padding: 4px 0; color: #555; }
 .cs-divider { border-top: 1px dashed #e0e0e0; margin: 8px 0; }
-.cs-row.selisih.ok    { color: #4a7a00; font-weight: 700; }
+.cs-row.selisih.ok    { color: #065f46; font-weight: 700; }
 .cs-row.selisih.short { color: #cc3333; font-weight: 700; }
 
 .closing-calc {
@@ -260,13 +260,13 @@ onMounted(() => fetchData())
   margin-top: 12px;
 }
 .calc-row { display: flex; justify-content: space-between; font-size: 14px; padding: 4px 0; color: #555; }
-.calc-row.total { font-size: 15px; font-weight: 700; color: #1a1a1a; border-top: 1px dashed #cce090; padding-top: 8px; margin-top: 4px; }
-.calc-row.selisih.ok    { color: #4a7a00; font-weight: 700; font-size: 15px; border-top: 1px dashed #cce090; padding-top: 8px; }
-.calc-row.selisih.short { color: #cc3333; font-weight: 700; font-size: 15px; border-top: 1px dashed #cce090; padding-top: 8px; }
+.calc-row.total { font-size: 15px; font-weight: 700; color: #1a1a1a; border-top: 1px dashed #99f6e4; padding-top: 8px; margin-top: 4px; }
+.calc-row.selisih.ok    { color: #065f46; font-weight: 700; font-size: 15px; border-top: 1px dashed #99f6e4; padding-top: 8px; }
+.calc-row.selisih.short { color: #cc3333; font-weight: 700; font-size: 15px; border-top: 1px dashed #99f6e4; padding-top: 8px; }
 .diff-label { font-size: 12px; text-align: right; margin-top: 4px; }
-.diff-label.ok    { color: #4a7a00; }
+.diff-label.ok    { color: #065f46; }
 .diff-label.short { color: #cc3333; font-weight: 600; }
-.diff-label.zero  { color: #4a7a00; }
+.diff-label.zero  { color: #065f46; }
 
 .detail-info  { margin-bottom: 8px; }
 .detail-row   { display: flex; justify-content: space-between; padding: 8px 0; border-bottom: 1px solid #f5f5f5; font-size: 14px; color: #555; }

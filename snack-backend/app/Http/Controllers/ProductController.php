@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Product;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 
 class ProductController extends Controller
@@ -31,8 +32,13 @@ class ProductController extends Controller
             'selling_price'  => 'required|numeric|min:0',
             'min_stock'      => 'required|integer|min:0',
             'description'    => 'nullable|string',
+            'image'          => 'sometimes|nullable|mimetypes:image/jpeg,image/png,image/gif,image/bmp,image/webp|max:2048',
             'is_active'      => 'boolean',
         ]);
+
+        if ($request->hasFile('image')) {
+            $data['image'] = $request->file('image')->store('products', 'public');
+        }
 
         $product = Product::create($data);
 
@@ -59,8 +65,16 @@ class ProductController extends Controller
             'selling_price'  => 'required|numeric|min:0',
             'min_stock'      => 'required|integer|min:0',
             'description'    => 'nullable|string',
+            'image'          => 'sometimes|nullable|mimetypes:image/jpeg,image/png,image/gif,image/bmp,image/webp|max:2048',
             'is_active'      => 'boolean',
         ]);
+
+        if ($request->hasFile('image')) {
+            if ($product->image) {
+                Storage::disk('public')->delete($product->image);
+            }
+            $data['image'] = $request->file('image')->store('products', 'public');
+        }
 
         $product->update($data);
 
