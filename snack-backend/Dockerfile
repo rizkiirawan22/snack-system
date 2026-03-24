@@ -1,0 +1,37 @@
+FROM php:8.3-cli-alpine
+
+# Install system dependencies
+RUN apk add --no-cache \
+    curl \
+    libpng-dev \
+    libjpeg-turbo-dev \
+    freetype-dev \
+    zip \
+    unzip \
+    git \
+    && docker-php-ext-configure gd --with-freetype --with-jpeg \
+    && docker-php-ext-install pdo pdo_mysql mbstring exif pcntl bcmath gd
+
+# Install Composer
+COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
+
+WORKDIR /app
+
+# Copy composer files first for layer caching
+COPY composer.json composer.lock ./
+RUN composer install --no-dev --optimize-autoloader --no-scripts
+
+# Copy rest of the application
+COPY . .
+
+# Run post-install scripts
+RUN composer run-script post-autoload-dump
+
+# Set permissions
+RUN chmod -R 775 storage bootstrap/cache
+
+EXPOSE 8000
+
+COPY start.sh /start.sh
+RUN chmod +x /start.sh
+CMD ["/start.sh"]
