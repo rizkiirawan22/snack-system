@@ -87,6 +87,18 @@ class ProductController extends Controller
         return response()->json(['message' => 'Produk dihapus.']);
     }
 
+    public function generateCode()
+    {
+        $codes = Product::withTrashed()->pluck('code');
+        $max = 0;
+        foreach ($codes as $code) {
+            if (preg_match('/^PRD-(\d+)$/', $code, $m)) {
+                $max = max($max, (int) $m[1]);
+            }
+        }
+        return response()->json(['code' => sprintf('PRD-%03d', $max + 1)]);
+    }
+
     public function lowStock()
     {
         $products = Product::with(['category', 'stock'])

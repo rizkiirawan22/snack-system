@@ -69,7 +69,8 @@
       <div class="grid-2">
         <div class="form-group">
           <label class="form-label">Kode <span class="required">*</span></label>
-          <input v-model="form.code" class="form-control" placeholder="MNS-001" />
+          <input v-model="form.code" class="form-control" placeholder="PRD-001" />
+          <span v-if="!editId" class="form-hint">Generate otomatis, bisa diubah manual</span>
         </div>
         <div class="form-group">
           <label class="form-label">Kategori <span class="required">*</span></label>
@@ -322,11 +323,17 @@ function clearImage() {
   form.existingImage = null
 }
 
-function openCreate() {
+async function openCreate() {
   editId.value = null
   Object.assign(form, defaultForm())
   resetImage()
   showModal.value = true
+  try {
+    const { data } = await api.get('/products/generate-code')
+    form.code = data.code
+  } catch {
+    // biarkan kosong jika gagal
+  }
 }
 
 function openEdit(row) {
@@ -444,6 +451,8 @@ onMounted(() => { fetchData(); fetchCategories() })
 
 .qty-plus  { color: #065f46; font-weight: 700; }
 .qty-minus { color: #cc3333; font-weight: 700; }
+
+.form-hint { font-size: 11px; color: var(--text-4, #aaa); margin-top: 3px; display: block; }
 
 @media (max-width: 480px) {
   .action-btns { flex-direction: column; gap: 4px; }

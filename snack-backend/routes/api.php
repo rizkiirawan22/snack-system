@@ -29,6 +29,7 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::apiResource('categories', CategoryController::class);
 
     // Products
+    Route::get('/products/generate-code', [ProductController::class, 'generateCode']);
     Route::get('/products/low-stock', [ProductController::class, 'lowStock']);
     Route::apiResource('products', ProductController::class);
 

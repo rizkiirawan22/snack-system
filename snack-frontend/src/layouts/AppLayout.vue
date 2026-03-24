@@ -8,10 +8,7 @@
     <!-- Sidebar -->
     <aside class="sidebar" :class="{ collapsed: sidebarCollapsed, 'mobile-open': mobileMenuOpen }">
       <div class="sidebar-header">
-        <div class="logo">
-          <span class="logo-icon">🍿</span>
-          <span class="logo-text">SnackKilo</span>
-        </div>
+        <AppLogo :show-text="!sidebarCollapsed" />
         <button class="collapse-btn desktop-only" @click="sidebarCollapsed = !sidebarCollapsed">
           <span>{{ sidebarCollapsed ? '›' : '‹' }}</span>
         </button>
@@ -80,7 +77,7 @@
       <!-- Mobile top bar -->
       <div class="mobile-topbar">
         <button class="hamburger-btn" @click="mobileMenuOpen = true">☰</button>
-        <span class="mobile-brand">🍿 SnackKilo</span>
+        <AppLogo size="sm" />
         <button class="theme-btn-mobile" @click="theme.toggle()">{{ theme.isDark ? '☀' : '☾' }}</button>
       </div>
 
@@ -97,6 +94,7 @@ import { useRouter, useRoute } from 'vue-router'
 import { useAuthStore } from '@/stores/auth'
 import { useThemeStore } from '@/stores/theme'
 import ToastContainer from '@/components/ToastContainer.vue'
+import AppLogo from '@/components/AppLogo.vue'
 
 const auth  = useAuthStore()
 const theme = useThemeStore()
@@ -139,11 +137,9 @@ async function handleLogout() {
 }
 
 .sidebar.collapsed { width: 64px; }
-.sidebar.collapsed .logo-text,
 .sidebar.collapsed .nav-label,
 .sidebar.collapsed .user-detail,
 .sidebar.collapsed .nav-divider span { display: none; }
-.sidebar.collapsed .logo { justify-content: center; }
 .sidebar.collapsed .user-info { justify-content: center; }
 .sidebar.collapsed .nav-item { justify-content: center; padding: 12px 0; }
 
@@ -154,10 +150,6 @@ async function handleLogout() {
   padding: 20px 16px;
   border-bottom: 1px solid var(--sidebar-border);
 }
-
-.logo { display: flex; align-items: center; gap: 10px; }
-.logo-icon { font-size: 20px; }
-.logo-text { color: #ffffff; font-weight: 600; font-size: 16px; white-space: nowrap; }
 
 .collapse-btn {
   background: none;
@@ -269,13 +261,6 @@ async function handleLogout() {
   flex-shrink: 0;
 }
 .hamburger-btn:hover { background: var(--bg-surface-2); }
-
-.mobile-brand {
-  flex: 1;
-  font-weight: 700;
-  font-size: 16px;
-  color: var(--text-1);
-}
 
 .theme-btn-mobile {
   background: none;
