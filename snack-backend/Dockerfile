@@ -32,6 +32,5 @@ RUN chmod -R 775 storage bootstrap/cache
 
 EXPOSE 8000
 
-COPY start.sh /start.sh
-RUN chmod +x /start.sh
-CMD ["/start.sh"]
+RUN chmod +x start.sh
+CMD ["sh", "start.sh"]
