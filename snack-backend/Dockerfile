@@ -18,11 +18,11 @@ COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
 WORKDIR /app
 
 # Copy composer files first for layer caching
-COPY composer.json composer.lock ./
+COPY snack-backend/composer.json snack-backend/composer.lock ./
 RUN composer install --no-dev --optimize-autoloader --no-scripts
 
 # Copy rest of the application
-COPY . .
+COPY snack-backend/ .
 
 # Run post-install scripts
 RUN composer run-script post-autoload-dump
