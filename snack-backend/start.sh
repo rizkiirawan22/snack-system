@@ -3,28 +3,27 @@ set -e
 
 echo "=== DB ENV CHECK ==="
 echo "DB_HOST=${DB_HOST}"
-echo "DB_PORT=${DB_PORT}"
-echo "DB_DATABASE=${DB_DATABASE}"
 echo "MYSQLHOST=${MYSQLHOST}"
-echo "MYSQLPORT=${MYSQLPORT}"
-echo "MYSQLDATABASE=${MYSQLDATABASE}"
 echo "MYSQL_URL=${MYSQL_URL}"
+echo "MYSQL_PUBLIC_URL=${MYSQL_PUBLIC_URL}"
 echo "===================="
 
-# Use Railway MySQL vars directly if DB_HOST is not set
-if [ -z "$DB_HOST" ] && [ -n "$MYSQLHOST" ]; then
-    echo "Using Railway MYSQL* variables..."
+# Priority 1: DB_HOST already set
+if [ -n "$DB_HOST" ]; then
+    echo "Using existing DB_HOST: $DB_HOST"
+
+# Priority 2: MYSQLHOST injected from Railway
+elif [ -n "$MYSQLHOST" ]; then
+    echo "Using MYSQLHOST..."
     export DB_CONNECTION=mysql
     export DB_HOST="$MYSQLHOST"
     export DB_PORT="${MYSQLPORT:-3306}"
     export DB_DATABASE="${MYSQLDATABASE:-railway}"
     export DB_USERNAME="${MYSQLUSER:-root}"
     export DB_PASSWORD="$MYSQLPASSWORD"
-    echo "DB_HOST set to: $DB_HOST"
-fi
 
-# Fallback: parse MYSQL_URL
-if [ -z "$DB_HOST" ] && [ -n "$MYSQL_URL" ]; then
+# Priority 3: Parse MYSQL_URL (private)
+elif [ -n "$MYSQL_URL" ]; then
     echo "Parsing MYSQL_URL..."
     export DB_CONNECTION=mysql
     export DB_HOST=$(echo "$MYSQL_URL" | sed -E 's|mysql://[^@]+@([^:/]+).*|\1|')
@@ -32,13 +31,23 @@ if [ -z "$DB_HOST" ] && [ -n "$MYSQL_URL" ]; then
     export DB_DATABASE=$(echo "$MYSQL_URL" | sed -E 's|mysql://[^/]+/(.+)|\1|')
     export DB_USERNAME=$(echo "$MYSQL_URL" | sed -E 's|mysql://([^:]+):.*|\1|')
     export DB_PASSWORD=$(echo "$MYSQL_URL" | sed -E 's|mysql://[^:]+:([^@]+)@.*|\1|')
-    echo "DB_HOST set to: $DB_HOST"
-fi
 
-if [ -z "$DB_HOST" ]; then
-    echo "ERROR: DB_HOST is still empty. Check Railway variable linking."
+# Priority 4: Parse MYSQL_PUBLIC_URL (fallback)
+elif [ -n "$MYSQL_PUBLIC_URL" ]; then
+    echo "Parsing MYSQL_PUBLIC_URL as fallback..."
+    export DB_CONNECTION=mysql
+    export DB_HOST=$(echo "$MYSQL_PUBLIC_URL" | sed -E 's|mysql://[^@]+@([^:/]+).*|\1|')
+    export DB_PORT=$(echo "$MYSQL_PUBLIC_URL" | sed -E 's|mysql://[^@]+@[^:]+:([^/]+)/.*|\1|')
+    export DB_DATABASE=$(echo "$MYSQL_PUBLIC_URL" | sed -E 's|mysql://[^/]+/(.+)|\1|')
+    export DB_USERNAME=$(echo "$MYSQL_PUBLIC_URL" | sed -E 's|mysql://([^:]+):.*|\1|')
+    export DB_PASSWORD=$(echo "$MYSQL_PUBLIC_URL" | sed -E 's|mysql://[^:]+:([^@]+)@.*|\1|')
+
+else
+    echo "ERROR: No DB configuration found."
     exit 1
 fi
+
+echo "Resolved DB_HOST=$DB_HOST DB_PORT=$DB_PORT DB_DATABASE=$DB_DATABASE"
 
 echo "Running migrations..."
 php artisan migrate --force
