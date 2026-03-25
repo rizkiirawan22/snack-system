@@ -1,4 +1,5 @@
 #!/bin/sh
+set -e
 
 echo "=== DB ENV CHECK ==="
 echo "DB_HOST=${DB_HOST}"

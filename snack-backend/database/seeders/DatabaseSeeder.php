@@ -13,16 +13,14 @@ class DatabaseSeeder extends Seeder
     public function run(): void
     {
         // Users
-        User::create([
+        User::firstOrCreate(['email' => 'admin@snack.com'], [
             'name'     => 'Admin Utama',
-            'email'    => 'admin@snack.com',
             'password' => bcrypt('password'),
             'role'     => 'admin',
         ]);
 
-        User::create([
+        User::firstOrCreate(['email' => 'pegawai@snack.com'], [
             'name'     => 'Pegawai 1',
-            'email'    => 'pegawai@snack.com',
             'password' => bcrypt('password'),
             'role'     => 'pegawai',
         ]);
@@ -35,7 +33,7 @@ class DatabaseSeeder extends Seeder
         ];
 
         foreach ($categories as $cat) {
-            Category::create($cat);
+            Category::firstOrCreate(['name' => $cat['name']], $cat);
         }
 
         // Produk sample
@@ -49,12 +47,12 @@ class DatabaseSeeder extends Seeder
         ];
 
         foreach ($products as $p) {
-            $product = Product::create(array_merge($p, [
+            $product = Product::firstOrCreate(['code' => $p['code']], array_merge($p, [
                 'unit'      => 'gram',
                 'min_stock' => 10,
             ]));
 
-            Stock::create(['product_id' => $product->id, 'quantity' => 50]);
+            Stock::firstOrCreate(['product_id' => $product->id], ['quantity' => 50]);
         }
     }
 }
